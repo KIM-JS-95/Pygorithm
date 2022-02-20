@@ -1,24 +1,15 @@
-# TODO: 서로소 집합 : 공통 원소가 없는 집합
+# TODO: 사이클 판별 : 루트 노드가 서로 반복된다면?
 
 # NOTE: 두 집합 결합
 def union(parent, a, b):
-    a = find_parent(parent, a)
-    b = find_parent(parent, b)
+    a = improved_find_parent(parent, a)
+    b = improved_find_parent(parent, b)
 
     if a < b:
         parent[b] = a
     else:
         parent[a] = b
 
-
-# NOTE: 결합 전에 공통 원소 찾기
-def find_parent(parent, x):
-    # NOTE: 부모 배열의 원소가 자기 자신이 아닌 것은 루트 원소가 아님을 의미
-    #       재귀로 루트 원소를 찾을 때 까지 반복
-    #       (비효율적이다. 시간 복잡도: O(N))
-    if parent[x] != x:
-        return find_parent(parent, parent[x])
-    return x
 
 # L: -----------------------------------------------------------------------
 
@@ -30,8 +21,9 @@ def improved_find_parent(parent, x):
     #       재귀로 루트 원소를 찾을 때 까지 반복
     #       (비효율적이다. 시간 복잡도: O(N))
     if parent[x] != x:
-        return find_parent(parent, parent[x])
+        return improved_find_parent(parent, parent[x])
     return parent[x]
+
 
 # L: -----------------------------------------------------------------------
 
@@ -48,17 +40,20 @@ if __name__ == "__main__":
     for i in range(1, v + 1):
         parent[i] = i
 
+    cycle = False
     for _ in range(e):
         a, b = map(int, input().split())
-        union(parent, a, b)
 
-    print('각 원소가 속한 집합: ', end=' ')
+# L: -----------------------------------------------------------------------
+        #NOTE: 두 원소의 루트 노드가 반복된다면? (1-> 2 -> 3 -> 1 -> 2 -> 3 ....)
+        if improved_find_parent(parent, a) == improved_find_parent(parent, b):
+            cycle = True
+            break
+        else:
+            union(parent, a, b)
+# L: -----------------------------------------------------------------------
 
-    for i in range(1, v + 1):
-        print(find_parent(parent, i), end=' ')
-
-    print()
-
-    print('부모 테이블: ', end=' ')
-    for i in range(1, v + 1):
-        print(parent[i], end=' ')
+if cycle:
+    print('Yes 사이클')
+else:
+    print('No 사이클')
